@@ -377,8 +377,11 @@ SPIS TREŚCI (TABLE OF CONTENTS)
 
     // --- 2. CUSTOM CURSOR & LERP ---
     const cursor = document.getElementById('custom-cursor');
+    const hoverImgWrapper = document.getElementById('hover-img-wrapper');
+    
     let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
     let cursorX = mouseX, cursorY = mouseY;
+    let imgTargetX = mouseX, imgTargetY = mouseY;
 
     window.addEventListener('mousemove', (e) => {
       mouseX = e.clientX; mouseY = e.clientY;
@@ -400,7 +403,7 @@ SPIS TREŚCI (TABLE OF CONTENTS)
       }
       
       // Floating Image Tracker
-      if (hoverImgWrapper.classList.contains('visible')) {
+      if (hoverImgWrapper && hoverImgWrapper.classList.contains('visible')) {
         // Obrazek podąża za kursorem z opóźnieniem
         imgTargetX += (mouseX - imgTargetX) * 0.1;
         imgTargetY += (mouseY - imgTargetY) * 0.1;
@@ -440,7 +443,7 @@ SPIS TREŚCI (TABLE OF CONTENTS)
     window.addEventListener('scroll', () => {
       const scrollY = window.scrollY;
       const mask = document.getElementById('hero-mask');
-      if (scrollY < window.innerHeight) {
+      if (scrollY < window.innerHeight && mask) {
         // Rozszerzanie maski wideo podczas scrollowania w dół
         const scale = 1 + (scrollY / window.innerHeight) * 1.5;
         const width = 45 + (scrollY / window.innerHeight) * 55; // Od 45vw do 100vw
@@ -455,16 +458,15 @@ SPIS TREŚCI (TABLE OF CONTENTS)
 
     // --- 4. WODOTRYSK: Pływające zdjęcia usług na hover ---
     const serviceItems = document.querySelectorAll('.service-item');
-    const hoverImgWrapper = document.getElementById('hover-img-wrapper');
     const hoverImages = document.querySelectorAll('.hover-img');
-    let imgTargetX = mouseX, imgTargetY = mouseY;
 
     serviceItems.forEach(item => {
       item.addEventListener('mouseenter', (e) => {
         const imgId = item.getAttribute('data-img');
         hoverImages.forEach(img => img.classList.remove('active'));
-        document.getElementById(imgId).classList.add('active');
-        hoverImgWrapper.classList.add('visible');
+        const targetImg = document.getElementById(imgId);
+        if(targetImg) targetImg.classList.add('active');
+        if(hoverImgWrapper) hoverImgWrapper.classList.add('visible');
         
         // Zresetuj pozycję na start
         imgTargetX = e.clientX;
@@ -472,7 +474,7 @@ SPIS TREŚCI (TABLE OF CONTENTS)
       });
       
       item.addEventListener('mouseleave', () => {
-        hoverImgWrapper.classList.remove('visible');
+        if(hoverImgWrapper) hoverImgWrapper.classList.remove('visible');
       });
     });
 
@@ -483,19 +485,22 @@ SPIS TREŚCI (TABLE OF CONTENTS)
     let bookData = {};
 
     function openBooking() {
-      bookingModal.classList.add('open');
+      if(bookingModal) bookingModal.classList.add('open');
       document.body.style.overflow = 'hidden';
       // Reset
       document.querySelectorAll('.booking-step').forEach(s => s.classList.remove('active'));
-      document.getElementById('b-step-1').classList.add('active');
+      const step1 = document.getElementById('b-step-1');
+      if(step1) step1.classList.add('active');
       document.querySelectorAll('.zen-btn').forEach(b => b.classList.remove('selected'));
-      document.getElementById('b-name').value = '';
-      document.getElementById('b-phone').value = '';
+      const nameInput = document.getElementById('b-name');
+      const phoneInput = document.getElementById('b-phone');
+      if(nameInput) nameInput.value = '';
+      if(phoneInput) phoneInput.value = '';
       checkForm();
     }
 
     function closeBooking() {
-      bookingModal.classList.remove('open');
+      if(bookingModal) bookingModal.classList.remove('open');
       document.body.style.overflow = '';
     }
 
@@ -504,35 +509,52 @@ SPIS TREŚCI (TABLE OF CONTENTS)
       
       // Update UI (pokaż zaznaczenie)
       const currentStep = document.querySelector('.booking-step.active');
-      currentStep.querySelectorAll('.zen-btn').forEach(b => b.classList.remove('selected'));
-      event.currentTarget.classList.add('selected');
+      if(currentStep) {
+        currentStep.querySelectorAll('.zen-btn').forEach(b => b.classList.remove('selected'));
+      }
+      if(event && event.currentTarget) {
+        event.currentTarget.classList.add('selected');
+      }
 
       // Automatyczne przejście dalej po 400ms (płynność)
       setTimeout(() => {
-        currentStep.classList.remove('active');
-        if(type === 'service') document.getElementById('b-step-2').classList.add('active');
-        if(type === 'doctor') document.getElementById('b-step-3').classList.add('active');
+        if(currentStep) currentStep.classList.remove('active');
+        if(type === 'service') {
+          const step2 = document.getElementById('b-step-2');
+          if(step2) step2.classList.add('active');
+        }
+        if(type === 'doctor') {
+          const step3 = document.getElementById('b-step-3');
+          if(step3) step3.classList.add('active');
+        }
       }, 400);
     }
 
     function checkForm() {
-      const name = document.getElementById('b-name').value;
-      const phone = document.getElementById('b-phone').value;
+      const nameInput = document.getElementById('b-name');
+      const phoneInput = document.getElementById('b-phone');
       const btn = document.getElementById('b-submit');
-      if (name.length > 2 && phone.length >= 6) {
-        btn.disabled = false;
-      } else {
-        btn.disabled = true;
+      
+      if(nameInput && phoneInput && btn) {
+        const name = nameInput.value;
+        const phone = phoneInput.value;
+        if (name.length > 2 && phone.length >= 6) {
+          btn.disabled = false;
+        } else {
+          btn.disabled = true;
+        }
       }
     }
 
     function submitBooking() {
       const btn = document.getElementById('b-submit');
-      btn.innerHTML = 'Przetwarzanie...';
+      if(btn) btn.innerHTML = 'Przetwarzanie...';
       
       setTimeout(() => {
-        document.getElementById('b-step-3').classList.remove('active');
-        document.getElementById('b-step-4').classList.add('active');
+        const step3 = document.getElementById('b-step-3');
+        const step4 = document.getElementById('b-step-4');
+        if(step3) step3.classList.remove('active');
+        if(step4) step4.classList.add('active');
       }, 1000);
     }
 
